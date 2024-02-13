@@ -48,3 +48,62 @@ namespace DataGridViewExample
         }
     }
 }
+
+Login
+using System;
+using System.Data;
+using Oracle.ManagedDataAccess.Client; // Asegúrate de tener esta referencia agregada a tu proyecto
+
+namespace OracleLoginForm
+{
+    public partial class LoginForm : Form
+    {
+        private OracleConnection connection;
+        
+        public LoginForm()
+        {
+            InitializeComponent();
+            string connectionString = "Data Source=TuFuenteDeDatosOracle;User Id=TU_USUARIO;Password=TU_CONTRASEÑA;";
+            connection = new OracleConnection(connectionString);
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            string username = txtUsername.Text;
+            string password = txtPassword.Text;
+
+            try
+            {
+                connection.Open();
+
+                // Aquí puedes ejecutar una consulta para verificar las credenciales del usuario
+                // Por ejemplo:
+                string query = "SELECT COUNT(*) FROM usuarios WHERE username = :username AND password = :password";
+                OracleCommand command = new OracleCommand(query, connection);
+                command.Parameters.Add(":username", OracleDbType.Varchar2).Value = username;
+                command.Parameters.Add(":password", OracleDbType.Varchar2).Value = password;
+
+                int count = Convert.ToInt32(command.ExecuteScalar());
+
+                if (count > 0)
+                {
+                    MessageBox.Show("Inicio de sesión exitoso");
+                    // Si las credenciales son válidas, puedes abrir el siguiente formulario o realizar otras acciones.
+                }
+                else
+                {
+                    MessageBox.Show("Nombre de usuario o contraseña incorrectos");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+            finally
+            {
+                if (connection.State == ConnectionState.Open)
+                    connection.Close();
+            }
+        }
+    }
+}
